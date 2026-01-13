@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import { AuthController } from "../controllers/AuthController";
+import { handleInputErrors } from "../middleware/validation";
 
 const router = Router();
 
@@ -14,17 +15,20 @@ router.post('/create-user',
         }
         return true;
     }),
+    handleInputErrors,
     AuthController.createUser
 );
 
 router.post('/confirm-email',
     body('token').notEmpty().withMessage('Token is required'),
+    handleInputErrors,
     AuthController.confirmEmail
 );
 
 router.post('/login',
     body('email').isEmail().withMessage('Invalid email address'),
     body('password').notEmpty().withMessage('Password is required'),
+    handleInputErrors,
     AuthController.login
 )
 
