@@ -9,7 +9,7 @@ import { AuthEmail } from "../emails/AuthEmail";
 export class AuthController {
     static createUser = async (req: Request, res: Response) => {
         try {
-            const { email, name, password } = req.body;
+            const { email, password } = req.body;
             const userExists = await User.findOne({ email });
             const user = new User(req.body);
 
@@ -96,8 +96,7 @@ export class AuthController {
             }
 
             const token = generateJWT({ id: user._id.toString() });
-
-            res.status(200).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+            res.send(token)
 
         } catch (error) {
             console.error("Error during login:", error);
