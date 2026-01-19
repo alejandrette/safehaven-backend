@@ -96,12 +96,29 @@ export class AuthController {
             }
 
             const token = generateJWT({ id: user._id.toString() });
-            res.send(token)
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: false,      // true en producción (https)
+                sameSite: "lax",    // en local usa lax
+                maxAge: 24 * 60 * 60 * 1000
+            });
+
+            res.status(200).json({ message: "Logged in successfully" });
 
         } catch (error) {
             console.error("Error during login:", error);
             res.status(500).json({ message: "Internal server error" });
         }
+    }
+
+    static logout = async (req: Request, res: Response) => {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: false,      // true en producción (https)
+            sameSite: "lax"     // en local usa lax
+        });
+        res.status(200).json({ message: "Logged out successfully" });
     }
 
     static getUser = async (req: Request, res: Response) => {

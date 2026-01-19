@@ -11,30 +11,24 @@ declare global {
 }
 
 export const validate = async (req: Request, res: Response, next: NextFunction) => {
-    const bearer = req.headers.authorization;
+    const token = req.cookies.token;
 
-    if (!bearer || !bearer.startsWith('Bearer ')) {
+    if (!token) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
     }
 
-    const [, token] = bearer.split(' ');
-
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
 
-        if (typeof decoded === 'object' && decoded.id) {
-            const user = await User.findById(decoded.id).select('id name email');
-            if (!user) {
-                res.status(401).json({ message: 'Unauthorized' });
-                return;
-            } else {
-                req.user = user;
-                next();
-            }
-        } else {
+        const user = await User.findById(decoded.id).select('id name email');
+        if (!user) {
             res.status(401).json({ message: 'Unauthorized' });
+            return;
         }
+
+        req.user = user;
+        next();
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }

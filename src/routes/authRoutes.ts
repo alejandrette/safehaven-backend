@@ -31,11 +31,15 @@ router.post('/login',
     body('password').notEmpty().withMessage('Password is required'),
     handleInputErrors,
     AuthController.login
-)
+);
+
+router.post('/logout', 
+    AuthController.logout
+);
 
 router.get('/user',
     validate,
     AuthController.getUser
-)
+);
 
 export default router;
